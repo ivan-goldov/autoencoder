@@ -21,4 +21,4 @@ class AutoEncoder(nn.Module):
         return self.decode(self.encode(x))
 
     def save(self, path: str):
-        torch.save(self.state_dict(), path)
+        torch.save(self.state_dict(), path + '/autoencoder')
