@@ -47,21 +47,20 @@ class Cifar10Dataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-
-def main():
-    t = Cifar10Dataset("train")
-    dataloader = DataLoader(dataset=t, batch_size=1)
-    batch = next(iter(dataloader))['img']
-    # plt.imshow(t.permute(1, 2, 0))
-    # plt.show()
-    model = AutoEncoder()
-    # model = nn.Conv2d(in_channels=3, out_channels=256, kernel_size=4, stride=2)
-    res = model.encode(batch)
-    # plt.imshow(res.permute(1, 2, 0))
-    print(res.shape)
-    res2 = model.decode(res)
-    print(res2.shape)
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     t = Cifar10Dataset("train")
+#     dataloader = DataLoader(dataset=t, batch_size=1)
+#     batch = next(iter(dataloader))['img']
+#     # plt.imshow(t.permute(1, 2, 0))
+#     # plt.show()
+#     model = AutoEncoder()
+#     # model = nn.Conv2d(in_channels=3, out_channels=256, kernel_size=4, stride=2)
+#     res = model.encode(batch)
+#     # plt.imshow(res.permute(1, 2, 0))
+#     print(res.shape)
+#     res2 = model.decode(res)
+#     print(res2.shape)
+#
+#
+# if __name__ == '__main__':
+#     main()

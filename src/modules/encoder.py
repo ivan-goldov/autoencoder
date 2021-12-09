@@ -14,17 +14,17 @@ class Encoder(nn.Module):
                 out_channels=num_hidden_units // 2,
                 kernel_size=4,
                 stride=2,
-                padding=1,
+                padding=1
             ),
             nn.Conv2d(
                 in_channels=num_hidden_units // 2,
                 out_channels=num_hidden_units,
                 kernel_size=4,
                 stride=2,
-                padding=1,
+                padding=1
             ),
             ResidualBlock(num_hidden_units, num_hidden_units),
-            ResidualBlock(num_hidden_units, num_hidden_units),
+            ResidualBlock(num_hidden_units, num_hidden_units)
         )
 
     def forward(self, x: Tensor) -> Tensor:

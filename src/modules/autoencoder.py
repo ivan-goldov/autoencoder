@@ -19,3 +19,6 @@ class AutoEncoder(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         return self.decode(self.encode(x))
+
+    def save(self, path: str):
+        torch.save(self.state_dict(), path)

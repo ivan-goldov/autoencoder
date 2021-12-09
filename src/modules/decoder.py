@@ -16,15 +16,15 @@ class Decoder(nn.Module):
                 out_channels=num_hidden_units // 2,
                 kernel_size=4,
                 stride=2,
-                padding=1,
+                padding=1
             ),
             nn.ReLU(inplace=True),
             nn.ConvTranspose2d(
                 in_channels=num_hidden_units // 2,
                 out_channels=3,
                 kernel_size=2,
-                stride=2,
-            ),
+                stride=2
+            )
         )
 
     def forward(self, x: Tensor) -> Tensor:
