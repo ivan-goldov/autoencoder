@@ -4,7 +4,6 @@ from torch import Tensor
 
 
 def show_image(img: Tensor):
-    img = img / 2 + 0.5
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    img = img.detach().numpy() / 2 + 0.5
+    plt.imshow(np.transpose(img, (1, 2, 0)))
     plt.show()

@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from src.data_processing.image_dataset import Cifar10Dataset
+from src.evaluation.evaluate_classifier import evaluate_classifier
 from src.modules.classifier import Classifier
 
 
@@ -20,6 +21,7 @@ def train_classifier(
         wandb_login: Optional[str],
         save_path: Optional[str]
 ):
+    torch.manual_seed(0)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     classifier = Classifier()
@@ -62,5 +64,8 @@ def train_classifier(
 
         if to_evaluate:
             evaluate_classifier(
-                classifier,
-                DataLoader(Cifar10Dataset('test'), batch_size=test_batch_size))
+                classifier=classifier,
+                encoder=encoder,
+                test_loader=DataLoader(Cifar10Dataset('test'), batch_size=test_batch_size),
+                wandb_login=wandb_login
+            )

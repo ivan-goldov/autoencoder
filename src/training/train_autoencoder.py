@@ -21,6 +21,7 @@ def train_autoencoder(
         wandb_login: Optional[str],
         save_path: Optional[str]
 ):
+    torch.manual_seed(0)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
@@ -56,7 +57,7 @@ def train_autoencoder(
             bar.update(1)
 
             if save_path:
-                autoencoder.save(save_path)
+                autoencoder.save(save_path, epoch, optimizer.state_dict())
 
             if wandb_login:
                 wandb.log({'autoencoder_loss': loss.item()})

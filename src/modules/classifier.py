@@ -15,3 +15,9 @@ class Classifier(nn.Module):
 
     def save(self, path: str):
         torch.save(self.state_dict(), path + '/classifier')
+
+    @staticmethod
+    def load(path: str):
+        model = Classifier()
+        model.load_state_dict(torch.load(path))
+        return model
