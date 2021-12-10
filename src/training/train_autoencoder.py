@@ -6,6 +6,7 @@ import torchvision
 import wandb as wandb
 from torch import nn
 from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 from tqdm import tqdm
 
 from src.evaluation.evaluate_autoencoder import evaluate_autoencoder
@@ -26,8 +27,11 @@ def train_autoencoder(
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
-    train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=None)
-    test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=None)
+    transform = transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     train_loader = DataLoader(train_data, batch_size=256)
     autoencoder = AutoEncoder()
     autoencoder.to(device)
