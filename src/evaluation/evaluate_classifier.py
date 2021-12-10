@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from functools import partial
 from typing import Optional
 
 import torch
@@ -55,21 +56,25 @@ def evaluate_classifier(
                 bar.update(1)
 
         scores = [
-            accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
+            ('accuracy', accuracy_score),
+            ('precision', partial(precision_score, average='micro')),
+            ('recall', partial(recall_score, average='micro')),
+            ('f1', partial(f1_score, average='micro')),
+            ('roc_auc', roc_auc_score),
         ]
 
         print(targets, predictions)
 
-        for score in scores:
-            print(f'{score.__name__}: {score(targets, predictions)}')
+        for name, score in scores:
+            print(f'{name}: {score(targets, predictions)}')
 
         show_image(torchvision.utils.make_grid(img[:5]))
         print(' '.join(classes[predictions[j]] for j in range(5)))
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
-            for score in scores:
-                wandb.log(f'{score.__name__}: {score(targets, predictions)}')
+            for name, score in scores:
+                wandb.log(f'{name}: {score(targets, predictions)}')
 
 
 def main():
