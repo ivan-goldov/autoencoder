@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from src.data_processing.image_dataset import Cifar10Dataset
 from src.evaluation.evaluate_autoencoder import evaluate_autoencoder
 from src.modules.autoencoder import AutoEncoder
+from src.training.add_training_arguments import add_training_arguments
 
 
 def train_autoencoder(
@@ -19,9 +20,10 @@ def train_autoencoder(
         test_batch_size: int,
         to_evaluate: bool,
         wandb_login: Optional[str],
-        save_path: Optional[str]
+        save_path: Optional[str],
+        seed: int,
 ):
-    torch.manual_seed(0)
+    torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
@@ -73,13 +75,7 @@ def train_autoencoder(
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('epochs', type=int, default=200)
-    parser.add_argument('lr', type=float, default=3e-4)
-    parser.add_argument('train_batch_size', type=int, default=16)
-    parser.add_argument('test_batch_size', type=int, default=16)
-    parser.add_argument('wandb_login', help='login for wandb to log process', type=str, default=None)
-    parser.add_argument('save_path', help='path to save model', type=str, default=None)
-    parser.add_argument('to_evaluate', help='evaluate after training or not', type=bool, default=True)
+    parser = add_training_arguments(parser)
     args = parser.parse_args()
     train_autoencoder(
         epochs=args['epochs'],
@@ -88,7 +84,8 @@ def main():
         test_batch_size=args['test_batch_size'],
         to_evaluate=args['to_evaluate'],
         wandb_login=args['wandb_login'],
-        save_path=args['save_path']
+        save_path=args['save_path'],
+        seed=args['seed']
     )
 
 

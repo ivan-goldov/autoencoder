@@ -19,6 +19,12 @@ class AutoEncoder(nn.Module):
     def decode(self, x: Tensor) -> Tensor:
         return self.decoder(x)
 
+    def get_encoder(self) -> nn.Module:
+        return self.encoder
+
+    def get_decoder(self) -> nn.Module:
+        return self.decoder
+
     def forward(self, x: Tensor) -> Tensor:
         return self.decode(self.encode(x))
 

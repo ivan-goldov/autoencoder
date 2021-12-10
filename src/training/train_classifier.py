@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 from typing import Optional
 
 import torch
@@ -8,7 +9,9 @@ from tqdm import tqdm
 
 from src.data_processing.image_dataset import Cifar10Dataset
 from src.evaluation.evaluate_classifier import evaluate_classifier
+from src.modules.autoencoder import AutoEncoder
 from src.modules.classifier import Classifier
+from src.training.add_training_arguments import add_training_arguments
 
 
 def train_classifier(
@@ -19,9 +22,10 @@ def train_classifier(
         test_batch_size: int,
         to_evaluate: bool,
         wandb_login: Optional[str],
-        save_path: Optional[str]
+        save_path: Optional[str],
+        seed: int,
 ):
-    torch.manual_seed(0)
+    torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     classifier = Classifier()
@@ -69,3 +73,28 @@ def train_classifier(
                 test_loader=DataLoader(Cifar10Dataset('test'), batch_size=test_batch_size),
                 wandb_login=wandb_login
             )
+
+
+def main():
+    parser = ArgumentParser()
+    parser = add_training_arguments(parser)
+    parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
+    args = parser.parse_args()
+    autoencoder = AutoEncoder()
+    autoencoder.load_model(args['path'])
+    encoder = autoencoder.get_encoder()
+    train_classifier(
+        encoder=encoder,
+        epochs=args['epochs'],
+        lr=args['lr'],
+        train_batch_size=args['train_batch_size'],
+        test_batch_size=args['test_batch_size'],
+        to_evaluate=args['to_evaluate'],
+        wandb_login=args['wandb_login'],
+        save_path=args['save_path'],
+        seed=args['seed']
+    )
+
+
+if __name__ == '__main__':
+    main()

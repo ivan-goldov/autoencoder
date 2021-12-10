@@ -12,7 +12,7 @@ from src.modules.autoencoder import AutoEncoder
 
 
 def evaluate_autoencoder(
-        model: AutoEncoder,
+        model: nn.Module,
         test_loader: DataLoader,
         compare_images: bool = False,
         wandb_login: Optional[str] = None
