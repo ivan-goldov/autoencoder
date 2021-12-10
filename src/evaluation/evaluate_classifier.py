@@ -57,11 +57,11 @@ def evaluate_classifier(
         scores = [
             accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
         ]
-        
+
         print(targets, predictions)
 
         for score in scores:
-            print(f'{score.__name__}: {accuracy_score(targets, predictions)}')
+            print(f'{score.__name__}: {score(targets, predictions)}')
 
         show_image(torchvision.utils.make_grid(img[:5]))
         print(' '.join(classes[predictions[j]] for j in range(5)))
@@ -69,7 +69,7 @@ def evaluate_classifier(
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
             for score in scores:
-                wandb.log(f'{score.__name__}: {accuracy_score(targets, predictions)}')
+                wandb.log(f'{score.__name__}: {score(targets, predictions)}')
 
 
 def main():
