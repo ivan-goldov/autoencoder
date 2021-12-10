@@ -60,10 +60,7 @@ def evaluate_classifier(
             ('precision', partial(precision_score, average='micro')),
             ('recall', partial(recall_score, average='micro')),
             ('f1', partial(f1_score, average='micro')),
-            ('roc_auc', roc_auc_score),
         ]
-
-        print(targets, predictions)
 
         for name, score in scores:
             print(f'{name}: {score(targets, predictions)}')
