@@ -52,11 +52,13 @@ def evaluate_classifier(
                 predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
                 targets.extend(labels.detach().cpu().numpy())
 
-            bar.update(1)
+                bar.update(1)
 
         scores = [
             accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
         ]
+        
+        print(targets, predictions)
 
         for score in scores:
             print(f'{score.__name__}: {accuracy_score(targets, predictions)}')
