@@ -34,6 +34,7 @@ def evaluate_classifier(
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         classifier.to(device)
+        encoder.to(device)
 
         criterion = nn.CrossEntropyLoss()
 
@@ -76,7 +77,6 @@ def main():
     parser.add_argument('--wandb_login', help='wandb login to log loss and metrics', type=str, default=None)
     parser.add_argument('--batch_size', type=int, default=16)
     args = parser.parse_args()
-    print(args)
     autoencoder = AutoEncoder().load_model(args.autoencoder_path)
     evaluate_classifier(
         classifier=Classifier().load(args.classifier_path),
