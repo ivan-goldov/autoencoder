@@ -85,7 +85,7 @@ def main():
     # parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
     parser = add_training_arguments(parser)
     args = parser.parse_args()
-    autoencoder, _, _ = AutoEncoder.load_checkpoint('/autoencoder_ckp')
+    autoencoder, _, _ = AutoEncoder.load_checkpoint('/workspace/autoencoder_ckp')
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,
