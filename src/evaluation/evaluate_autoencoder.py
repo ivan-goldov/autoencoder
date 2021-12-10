@@ -1,23 +1,31 @@
+from argparse import ArgumentParser
 from typing import Optional
 
 import torch
 import torchvision.utils
 import wandb
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
+from src.data_processing.image_dataset import Cifar10Dataset
 from src.data_processing.show_image import show_image
 from src.modules.autoencoder import AutoEncoder
 
 
 def evaluate_autoencoder(
         model: nn.Module,
-        test_loader: DataLoader,
-        compare_images: bool = False,
+        test_data: Optional[Dataset] = None,  # will be evaluated on cifar10 if no data given
+        test_batch_size: int = 16,
+        show_images: bool = False,
         wandb_login: Optional[str] = None
 ):
     with torch.no_grad():
+        if test_data is None:
+            test_data = Cifar10Dataset('test')
+
+        test_loader = DataLoader(test_data, batch_size=test_batch_size)
+        print(len(test_data))
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
@@ -35,5 +43,25 @@ def evaluate_autoencoder(
         if wandb_login:
             wandb.log({'evaluate_autoencoder_loss': total_loss})
 
-        if compare_images:
-            show_image(torchvision.utils.make_grid(reconstructed, img))
+        if show_images:
+            show_image(torchvision.utils.make_grid(reconstructed[0], img[0]))
+
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('autoencoder_path', help='path to saved autoencoder model', type=str, required=True)
+    parser.add_argument('show_images', help='show original and reconstructed images', type=bool, default=True)
+    parser.add_argument('wandb_login', help='wandb login to log loss', type=str, default=None)
+    parser.add_argument('batch_size', type=int, default=16)
+    args = parser.parse_args()
+    autoencoder = AutoEncoder().load_model(args['autoencoder_path'])
+    evaluate_autoencoder(
+        model=autoencoder,
+        test_batch_size=args['batch_size'],
+        show_images=args['show_images'],
+        wandb_login=args['wandb_login']
+    )
+
+
+if __name__ == '__main__':
+    main()

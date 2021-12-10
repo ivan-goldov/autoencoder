@@ -70,7 +70,7 @@ def train_classifier(
             evaluate_classifier(
                 classifier=classifier,
                 encoder=encoder,
-                test_loader=DataLoader(Cifar10Dataset('test'), batch_size=test_batch_size),
+                test_batch_size=test_batch_size,
                 wandb_login=wandb_login
             )
 
@@ -80,8 +80,7 @@ def main():
     parser = add_training_arguments(parser)
     parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
     args = parser.parse_args()
-    autoencoder = AutoEncoder()
-    autoencoder.load_model(args['path'])
+    autoencoder = AutoEncoder().load_model(args['path'])
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,

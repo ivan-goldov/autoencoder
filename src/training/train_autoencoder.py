@@ -14,14 +14,14 @@ from src.training.add_training_arguments import add_training_arguments
 
 
 def train_autoencoder(
-        epochs: int,
-        lr: float,
-        train_batch_size: int,
-        test_batch_size: int,
-        to_evaluate: bool,
-        wandb_login: Optional[str],
-        save_path: Optional[str],
-        seed: int,
+        epochs: int = 1000,
+        lr: float = 3e-4,
+        train_batch_size: int = 16,
+        test_batch_size: int = 16,
+        to_evaluate: bool = True,
+        wandb_login: Optional[str] = None,
+        save_path: Optional[str] = None,
+        seed: int = 0,
 ):
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -67,8 +67,9 @@ def train_autoencoder(
     if to_evaluate:
         evaluate_autoencoder(
             model=autoencoder,
-            test_loader=DataLoader(test_data, batch_size=test_batch_size),
-            compare_images=True,
+            test_data=test_data,
+            test_batch_size=test_batch_size,
+            show_images=True,
             wandb_login=wandb_login
         )
 

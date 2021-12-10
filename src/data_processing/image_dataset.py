@@ -43,4 +43,4 @@ class Cifar10Dataset(Dataset):
         return {'img': tensor, 'label': label}
 
     def __len__(self):
-        return len(self.data)
+        return len(self.data['data'])

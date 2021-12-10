@@ -3,18 +3,27 @@ from typing import Optional
 import torch
 import wandb
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
+
+from src.data_processing.image_dataset import Cifar10Dataset
 
 
 def evaluate_classifier(
         classifier: nn.Module,
         encoder: nn.Module,
-        test_loader: DataLoader,
+        test_data: Optional[Dataset] = None,  # will be evaluated on cifar10 if no data given
+        test_batch_size: int = 16,
         wandb_login: Optional[str] = None
 ):
     with torch.no_grad():
+        if not test_data:
+            test_data = Cifar10Dataset('test')
+
+        test_loader = DataLoader(test_data, batch_size=test_batch_size)
+
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         classifier.to(device)
 
