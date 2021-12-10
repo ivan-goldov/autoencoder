@@ -32,7 +32,7 @@ def train_autoencoder(
          transforms.Normalize(0.5, 0.5, )])
     train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    train_loader = DataLoader(train_data, batch_size=256, num_workers=-1)
+    train_loader = DataLoader(train_data, batch_size=256, num_workers=16)
     autoencoder = AutoEncoder()
     autoencoder.to(device)
 
