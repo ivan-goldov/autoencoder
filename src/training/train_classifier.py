@@ -59,7 +59,7 @@ def train_classifier(
             for batch in train_loader:
                 optimizer.zero_grad()
 
-                img, labels = batch['img'].to(device), batch['label'].to(device)
+                img, labels = batch[0].to(device), batch[1].to(device)
                 outputs = classifier(img)
                 loss = criterion(outputs, labels)
                 loss.backward()
