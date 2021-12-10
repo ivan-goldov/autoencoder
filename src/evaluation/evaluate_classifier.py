@@ -48,7 +48,7 @@ def evaluate_classifier(
                 outputs = classifier(hidden_representation)
                 loss = criterion(outputs, labels)
                 total_loss += loss.item()
-                predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpty())
+                predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
                 targets.extend(labels.detach().cpu().numpy())
 
             bar.update(1)
@@ -61,7 +61,7 @@ def evaluate_classifier(
             print(f'{score.__name__}: {accuracy_score(targets, predictions)}')
 
         show_image(torchvision.utils.make_grid(img[:5]))
-        print(' '.join(classes[labels[j]] for j in range(5)))
+        print(' '.join(classes[predictions[j]] for j in range(5)))
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
