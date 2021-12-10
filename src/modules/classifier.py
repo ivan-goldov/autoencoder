@@ -6,7 +6,7 @@ from torch import nn, Tensor
 
 
 class Classifier(nn.Module):
-    def __init__(self, encoder: nn.Module, in_channels: int = 256, n_classes: int = 10):
+    def __init__(self, encoder: nn.Module, in_channels: int = 128, n_classes: int = 10):
         super().__init__()
         self.encoder = encoder
         for param in self.encoder.parameters():
