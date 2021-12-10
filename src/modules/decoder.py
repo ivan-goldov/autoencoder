@@ -10,7 +10,6 @@ class Decoder(nn.Module):
         self.model = nn.Sequential(
             ResidualBlock(num_hidden_units, num_hidden_units),
             ResidualBlock(num_hidden_units, num_hidden_units),
-            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(
                 in_channels=num_hidden_units,
                 out_channels=num_hidden_units // 2,

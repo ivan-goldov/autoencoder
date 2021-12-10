@@ -12,13 +12,14 @@ class Classifier(nn.Module):
         for param in self.encoder.parameters():
             param.requires_grad = False
         self.model = nn.Sequential(
-            # nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 2, kernel_size=3),
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 8, kernel_size=3),
+            nn.ReLU(inplace=True),
             # nn.ReLU(inplace=True),
             # nn.MaxPool2d(2),
             # nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels // 4, kernel_size=3),
             # nn.ReLU(inplace=True),
             nn.Flatten(),
-            nn.Linear(256 * 21, 128),
+            nn.Linear(1152, 128),
             nn.ReLU(inplace=True),
             nn.Linear(128, n_classes),
         )

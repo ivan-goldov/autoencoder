@@ -16,6 +16,7 @@ class Encoder(nn.Module):
                 stride=2,
                 padding=1
             ),
+            nn.ReLU(inplace=True),
             nn.Conv2d(
                 in_channels=num_hidden_units // 2,
                 out_channels=num_hidden_units,
@@ -23,6 +24,7 @@ class Encoder(nn.Module):
                 stride=2,
                 padding=1
             ),
+            nn.ReLU(inplace=True),
             ResidualBlock(num_hidden_units, num_hidden_units),
             ResidualBlock(num_hidden_units, num_hidden_units)
         )

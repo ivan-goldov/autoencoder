@@ -44,7 +44,7 @@ def train_classifier(
             'save_path': save_path
         }
 
-    optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(classifier.parameters(), lr=3e-5)
     criterion = nn.CrossEntropyLoss()
 
     with tqdm(total=epochs, desc='training') as bar:
