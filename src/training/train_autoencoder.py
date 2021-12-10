@@ -29,10 +29,10 @@ def train_autoencoder(
     # train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
     transform = transforms.Compose(
         [transforms.ToTensor(),
-         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+         transforms.Normalize(0.5, 0.5, )])
     train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    train_loader = DataLoader(train_data, batch_size=256)
+    train_loader = DataLoader(train_data, batch_size=256, num_workers=-1)
     autoencoder = AutoEncoder()
     autoencoder.to(device)
 
