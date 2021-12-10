@@ -14,9 +14,9 @@ from src.training.add_training_arguments import add_training_arguments
 
 
 def train_autoencoder(
-        epochs: int = 1000,
+        epochs: int = 50,
         lr: float = 3e-4,
-        train_batch_size: int = 16,
+        train_batch_size: int = 64,
         test_batch_size: int = 16,
         to_evaluate: bool = True,
         wandb_login: Optional[str] = None,
@@ -45,6 +45,7 @@ def train_autoencoder(
 
     with tqdm(total=epochs, desc='training') as bar:
         for epoch in range(epochs):
+            epoch_loss = 0
             for batch in train_loader:
                 optimizer.zero_grad()
 
@@ -54,15 +55,18 @@ def train_autoencoder(
 
                 loss.backward()
                 optimizer.step()
-                print(loss.item())
+                epoch_loss += loss.item()
+
+            epoch_loss /= len(train_loader)
+            print(f'Last epoch loss: {epoch_loss}')
 
             bar.update(1)
 
             if save_path:
-                autoencoder.save(save_path, epoch, optimizer.state_dict())
+                autoencoder.save_checkpoint(save_path, epoch, optimizer.state_dict())
 
             if wandb_login:
-                wandb.log({'autoencoder_loss': loss.item()})
+                wandb.log({'autoencoder_loss': epoch_loss})
 
     if to_evaluate:
         evaluate_autoencoder(

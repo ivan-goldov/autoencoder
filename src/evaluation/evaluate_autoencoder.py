@@ -25,7 +25,6 @@ def evaluate_autoencoder(
             test_data = Cifar10Dataset('test')
 
         test_loader = DataLoader(test_data, batch_size=test_batch_size)
-        print(len(test_data))
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
@@ -37,14 +36,18 @@ def evaluate_autoencoder(
                 img = batch['img'].to(device)
                 reconstructed = model(img)
                 total_loss += criterion(reconstructed, img).item()
+                bar.update(1)
 
-            bar.update(1)
+            total_loss /= len(test_loader)
 
+        print(total_loss)
         if wandb_login:
+            wandb.init(project='autoencoder', entity=wandb_login)
             wandb.log({'evaluate_autoencoder_loss': total_loss})
 
         if show_images:
-            show_image(torchvision.utils.make_grid(reconstructed[0], img[0]))
+            show_image(img[0])
+            show_image(reconstructed[0])
 
 
 def main():

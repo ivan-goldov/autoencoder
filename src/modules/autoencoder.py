@@ -1,10 +1,11 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 import torch
 from torch import nn, Tensor
 
 from src.modules.decoder import Decoder
 from src.modules.encoder import Encoder
+from os.path import join, normpath
 
 
 class AutoEncoder(nn.Module):
@@ -33,23 +34,26 @@ class AutoEncoder(nn.Module):
             'model_state_dict': self.state_dict(),
             'optimizer_state_dict': opt_state_dict,
             'epoch': epoch
-        }, path + '/autoencoder_ckp')
+        }, join(normpath(path), 'autoencoder_ckp'))
 
     def save_model(self, path: str):
-        torch.save(self.state_dict(), path + '/autoencoder')
+        torch.save(self.state_dict(), join(normpath(path), 'autoencoder'))
 
     @staticmethod
-    def load_checkpoint(path: str):
+    def load_checkpoint(path: str) -> Tuple[nn.Module, torch.optim.Adam, int]:
         model = AutoEncoder()
         optimizer = torch.optim.Adam(model.parameters())
-        checkpoint = torch.load(path)
+        checkpoint = torch.load(path, map_location=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         epoch = checkpoint['epoch']
         return model, optimizer, epoch
 
     @staticmethod
-    def load_model(path: str):
+    def load_model(path: str) -> nn.Module:
         model = AutoEncoder()
-        model.load_state_dict(torch.load(path))
+        model.load_state_dict(torch.load(
+            normpath(path),
+            map_location=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        ))
         return model

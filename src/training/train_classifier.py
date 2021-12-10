@@ -16,19 +16,20 @@ from src.training.add_training_arguments import add_training_arguments
 
 def train_classifier(
         encoder: nn.Module,
-        epochs: int,
-        lr: float,
-        train_batch_size: int,
-        test_batch_size: int,
-        to_evaluate: bool,
-        wandb_login: Optional[str],
-        save_path: Optional[str],
-        seed: int,
+        channels: int = 256,
+        epochs: int = 100,
+        lr: float = 3e-4,
+        train_batch_size: int = 16,
+        test_batch_size: int = 16,
+        to_evaluate: bool = True,
+        wandb_login: Optional[str] = None,
+        save_path: Optional[str] = None,
+        seed: int = 0,
 ):
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    classifier = Classifier()
+    classifier = Classifier(in_channels=channels)
     classifier.to(device)
 
     encoder.to(device)
@@ -45,34 +46,34 @@ def train_classifier(
             'save_path': save_path
         }
 
-        optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
-        criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
+    criterion = nn.CrossEntropyLoss()
 
-        with tqdm(total=epochs, desc='training'):
-            for epoch in range(epochs):
-                for batch in train_loader:
-                    optimizer.zero_grad()
+    with tqdm(total=epochs, desc='training'):
+        for epoch in range(epochs):
+            for batch in train_loader:
+                optimizer.zero_grad()
 
-                    img, labels = batch['img'].to(device), batch['labels'].to(device)
-                    hidden_representation = encoder(img)
-                    outputs = classifier(hidden_representation)
-                    loss = criterion(outputs, labels)
-                    loss.backward()
-                    print(loss.item())
+                img, labels = batch['img'].to(device), batch['label'].to(device)
+                hidden_representation = encoder(img)
+                outputs = classifier(hidden_representation)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                print(loss.item())
 
-                    if wandb_login:
-                        wandb.log({'classifier_loss': loss.item()})
+                if wandb_login:
+                    wandb.log({'classifier_loss': loss.item()})
 
-                    if save_path:
-                        classifier.save(save_path)
+                if save_path:
+                    classifier.save(save_path)
 
-        if to_evaluate:
-            evaluate_classifier(
-                classifier=classifier,
-                encoder=encoder,
-                test_batch_size=test_batch_size,
-                wandb_login=wandb_login
-            )
+    if to_evaluate:
+        evaluate_classifier(
+            classifier=classifier,
+            encoder=encoder,
+            test_batch_size=test_batch_size,
+            wandb_login=wandb_login
+        )
 
 
 def main():
