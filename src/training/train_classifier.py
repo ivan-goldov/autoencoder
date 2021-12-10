@@ -17,9 +17,9 @@ from src.training.add_training_arguments import add_training_arguments
 def train_classifier(
         encoder: nn.Module,
         channels: int = 256,
-        epochs: int = 100,
+        epochs: int = 50,
         lr: float = 3e-4,
-        train_batch_size: int = 16,
+        train_batch_size: int = 64,
         test_batch_size: int = 16,
         to_evaluate: bool = True,
         wandb_login: Optional[str] = None,
@@ -86,18 +86,18 @@ def main():
     parser = add_training_arguments(parser)
     parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
     args = parser.parse_args()
-    autoencoder = AutoEncoder().load_model(args['path'])
+    autoencoder = AutoEncoder().load_model(args.path)
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,
-        epochs=args['epochs'],
-        lr=args['lr'],
-        train_batch_size=args['train_batch_size'],
-        test_batch_size=args['test_batch_size'],
-        to_evaluate=args['to_evaluate'],
-        wandb_login=args['wandb_login'],
-        save_path=args['save_path'],
-        seed=args['seed']
+        epochs=args.epochs,
+        lr=args.lr,
+        train_batch_size=args.train_batch_size,
+        test_batch_size=args.test_batch_size,
+        to_evaluate=args.to_evaluate,
+        wandb_login=args.wandb_login,
+        save_path=args.save_path,
+        seed=args.seed
     )
 
 

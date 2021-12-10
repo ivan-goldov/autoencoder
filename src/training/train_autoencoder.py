@@ -82,14 +82,14 @@ def main():
     parser = add_training_arguments(parser)
     args = parser.parse_args()
     train_autoencoder(
-        epochs=args['epochs'],
-        lr=args['lr'],
-        train_batch_size=args['train_batch_size'],
-        test_batch_size=args['test_batch_size'],
-        to_evaluate=args['to_evaluate'],
-        wandb_login=args['wandb_login'],
-        save_path=args['save_path'],
-        seed=args['seed']
+        epochs=args.epochs,
+        lr=args.lr,
+        train_batch_size=args.train_batch_size,
+        test_batch_size=args.test_batch_size,
+        to_evaluate=args.to_evaluate,
+        wandb_login=args.wandb_login,
+        save_path=args.save_path,
+        seed=args.seed
     )
 
 

@@ -50,15 +50,15 @@ def evaluate_autoencoder(
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('autoencoder_path', help='path to saved autoencoder model', type=str, required=True)
-    parser.add_argument('wandb_login', help='wandb login to log loss', type=str, default=None)
-    parser.add_argument('batch_size', type=int, default=16)
+    parser.add_argument('autoencoder_path', help='path to saved autoencoder model', type=str)
+    parser.add_argument('--wandb_login', help='wandb login to log loss', type=str, default=None)
+    parser.add_argument('--batch_size', type=int, default=16)
     args = parser.parse_args()
-    autoencoder = AutoEncoder().load_model(args['autoencoder_path'])
+    autoencoder = AutoEncoder().load_model(args.autoencoder_path)
     evaluate_autoencoder(
         model=autoencoder,
-        test_batch_size=args['batch_size'],
-        wandb_login=args['wandb_login']
+        test_batch_size=args.batch_size,
+        wandb_login=args.wandb_login
     )
 
 
