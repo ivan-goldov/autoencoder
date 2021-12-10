@@ -83,10 +83,10 @@ def train_classifier(
 
 def main():
     parser = ArgumentParser()
-    parser = add_training_arguments(parser)
     parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
+    parser = add_training_arguments(parser)
     args = parser.parse_args()
-    autoencoder = AutoEncoder().load_model(args.path)
+    autoencoder = AutoEncoder().load_model(args.autoencoder_model_path)
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,

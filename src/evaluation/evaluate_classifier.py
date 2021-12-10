@@ -5,11 +5,10 @@ from typing import Optional
 import torch
 import torchvision
 import wandb
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
-
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
 
 from src.data_processing.image_dataset import Cifar10Dataset
 from src.data_processing.show_image import show_image
