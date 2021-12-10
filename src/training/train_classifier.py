@@ -49,8 +49,9 @@ def train_classifier(
     optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
 
-    with tqdm(total=epochs, desc='training'):
+    with tqdm(total=epochs, desc='training') as bar:
         for epoch in range(epochs):
+            epoch_loss = 0
             for batch in train_loader:
                 optimizer.zero_grad()
 
@@ -59,13 +60,17 @@ def train_classifier(
                 outputs = classifier(hidden_representation)
                 loss = criterion(outputs, labels)
                 loss.backward()
-                print(loss.item())
+                optimizer.step()
+                epoch_loss += loss.item()
 
-                if wandb_login:
-                    wandb.log({'classifier_loss': loss.item()})
+            epoch_loss /= len(train_loader)
+            bar.update(1)
+            print(epoch_loss)
+            if wandb_login:
+                wandb.log({'classifier_loss': epoch_loss})
 
-                if save_path:
-                    classifier.save(save_path)
+            if save_path:
+                classifier.save(save_path)
 
     if to_evaluate:
         evaluate_classifier(

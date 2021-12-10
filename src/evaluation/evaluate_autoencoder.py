@@ -17,7 +17,6 @@ def evaluate_autoencoder(
         model: nn.Module,
         test_data: Optional[Dataset] = None,  # will be evaluated on cifar10 if no data given
         test_batch_size: int = 16,
-        show_images: bool = False,
         wandb_login: Optional[str] = None
 ):
     with torch.no_grad():
@@ -40,20 +39,18 @@ def evaluate_autoencoder(
 
             total_loss /= len(test_loader)
 
-        print(total_loss)
+        print(f'Training loss: {total_loss}')
         if wandb_login:
             wandb.init(project='autoencoder', entity=wandb_login)
             wandb.log({'evaluate_autoencoder_loss': total_loss})
 
-        if show_images:
-            show_image(img[0])
-            show_image(reconstructed[0])
+        show_image(torchvision.utils.make_grid(img[:5]))
+        show_image(torchvision.utils.make_grid(reconstructed[:5]))
 
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('autoencoder_path', help='path to saved autoencoder model', type=str, required=True)
-    parser.add_argument('show_images', help='show original and reconstructed images', type=bool, default=True)
     parser.add_argument('wandb_login', help='wandb login to log loss', type=str, default=None)
     parser.add_argument('batch_size', type=int, default=16)
     args = parser.parse_args()
@@ -61,7 +58,6 @@ def main():
     evaluate_autoencoder(
         model=autoencoder,
         test_batch_size=args['batch_size'],
-        show_images=args['show_images'],
         wandb_login=args['wandb_login']
     )
 

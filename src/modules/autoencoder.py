@@ -9,7 +9,7 @@ from os.path import join, normpath
 
 
 class AutoEncoder(nn.Module):
-    def __init__(self, in_channels: int = 0, out_channels: int = 0, kernel_size: int = 3, padding: int = 0):
+    def __init__(self):
         super().__init__()
         self.encoder = Encoder()
         self.decoder = Decoder()

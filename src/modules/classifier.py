@@ -8,9 +8,15 @@ class Classifier(nn.Module):
     def __init__(self, in_channels: int = 256, n_classes: int = 10):
         super().__init__()
         self.model = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=1, kernel_size=3),
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 2, kernel_size=3),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels // 4, kernel_size=3),
+            nn.ReLU(inplace=True),
             nn.Flatten(),
-            nn.Linear(36, n_classes),
+            nn.Linear(64, 32),
+            nn.ReLU(inplace=True),
+            nn.Linear(32, n_classes),
         )
 
     def forward(self, x: Tensor) -> Tensor:

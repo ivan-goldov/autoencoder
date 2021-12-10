@@ -73,7 +73,6 @@ def train_autoencoder(
             model=autoencoder,
             test_data=test_data,
             test_batch_size=test_batch_size,
-            show_images=True,
             wandb_login=wandb_login
         )
 
