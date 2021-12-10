@@ -2,12 +2,12 @@ from argparse import ArgumentParser
 from typing import Optional
 
 import torch.cuda
+import torchvision
 import wandb as wandb
-from tqdm import tqdm
 from torch import nn
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-from src.data_processing.image_dataset import Cifar10Dataset
 from src.evaluation.evaluate_autoencoder import evaluate_autoencoder
 from src.modules.autoencoder import AutoEncoder
 from src.training.add_training_arguments import add_training_arguments
@@ -18,7 +18,6 @@ def train_autoencoder(
         lr: float = 3e-4,
         train_batch_size: int = 64,
         test_batch_size: int = 16,
-        to_evaluate: bool = True,
         wandb_login: Optional[str] = None,
         save_path: Optional[str] = None,
         seed: int = 0,
@@ -26,8 +25,10 @@ def train_autoencoder(
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
-    train_loader = DataLoader(train_data, batch_size=train_batch_size)
+    # train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
+    train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=None)
+    test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=None)
+    train_loader = DataLoader(train_data, batch_size=256)
     autoencoder = AutoEncoder()
     autoencoder.to(device)
 
@@ -62,19 +63,18 @@ def train_autoencoder(
 
             bar.update(1)
 
+            evaluate_autoencoder(
+                model=autoencoder,
+                test_data=test_data,
+                test_batch_size=test_batch_size,
+                wandb_login=wandb_login
+            )
+
             if save_path:
                 autoencoder.save_checkpoint(save_path, epoch, optimizer.state_dict())
 
             if wandb_login:
                 wandb.log({'autoencoder_loss': epoch_loss})
-
-    if to_evaluate:
-        evaluate_autoencoder(
-            model=autoencoder,
-            test_data=test_data,
-            test_batch_size=test_batch_size,
-            wandb_login=wandb_login
-        )
 
 
 def main():
@@ -86,7 +86,6 @@ def main():
         lr=args.lr,
         train_batch_size=args.train_batch_size,
         test_batch_size=args.test_batch_size,
-        to_evaluate=args.to_evaluate,
         wandb_login=args.wandb_login,
         save_path=args.save_path,
         seed=args.seed

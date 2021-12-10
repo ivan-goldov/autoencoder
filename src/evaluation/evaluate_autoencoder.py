@@ -23,36 +23,37 @@ def evaluate_autoencoder(
         if test_data is None:
             test_data = Cifar10Dataset('test')
 
-        test_loader = DataLoader(test_data, batch_size=test_batch_size)
+        test_loader = DataLoader(test_data, batch_size=128)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
         criterion = nn.MSELoss(reduction='mean')
 
-        with tqdm(total=len(test_loader), desc='evaluation') as bar:
-            total_loss = 0
-            for batch in test_loader:
-                img = batch['img'].to(device)
-                reconstructed = model(img)
-                total_loss += criterion(reconstructed, img).item()
-                bar.update(1)
+        # with tqdm(total=len(test_loader), desc='evaluation') as bar:
+        total_loss = 0
+        for batch in test_loader:
+            img = batch['img'].to(device)
+            reconstructed = model(img)
+            total_loss += criterion(reconstructed, img).item()
+            # bar.update(1)
 
-            total_loss /= len(test_loader)
+        total_loss /= len(test_loader)
 
-        print(f'Training loss: {total_loss}')
+        print(f'Validation loss: {total_loss}')
+
         if wandb_login:
             wandb.init(project='autoencoder', entity=wandb_login)
             wandb.log({'evaluate_autoencoder_loss': total_loss})
 
-        show_image(torchvision.utils.make_grid(img[:5]))
-        show_image(torchvision.utils.make_grid(reconstructed[:5]))
+        # show_image(torchvision.utils.make_grid(img[:5]))
+        # show_image(torchvision.utils.make_grid(reconstructed[:5]))
 
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('autoencoder_path', help='path to saved autoencoder model', type=str)
     parser.add_argument('--wandb_login', help='wandb login to log loss', type=str, default=None)
-    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--batch_size', type=int, default=128)
     args = parser.parse_args()
     autoencoder = AutoEncoder().load_model(args.autoencoder_path)
     evaluate_autoencoder(
