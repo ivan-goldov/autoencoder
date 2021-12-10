@@ -42,20 +42,20 @@ def evaluate_classifier(
         with tqdm(total=len(test_loader), desc='evaluation') as bar:
             total_loss = 0
             for batch in test_loader:
-                img, labels = batch['img'].to(device), batch['label'].to(device)
+                img, labels = batch[0].to(device), batch[1].to(device)
                 outputs = classifier(img)
                 loss = criterion(outputs, labels)
                 total_loss += loss.item()
                 predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
                 targets.extend(labels.detach().cpu().numpy())
 
-                bar.update(1)
+                # bar.update(1)
 
         scores = [
             ('accuracy', accuracy_score),
-            ('precision', partial(precision_score, average='micro')),
-            ('recall', partial(recall_score, average='micro')),
-            ('f1', partial(f1_score, average='micro')),
+            # ('precision', partial(precision_score, average='micro')),
+            # ('recall', partial(recall_score, average='micro')),
+            # ('f1', partial(f1_score, average='micro')),
         ]
 
         for name, score in scores:
