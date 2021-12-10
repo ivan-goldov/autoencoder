@@ -18,7 +18,6 @@ from src.modules.classifier import Classifier
 
 def evaluate_classifier(
         classifier: nn.Module,
-        encoder: nn.Module,
         test_data: Optional[Dataset] = None,  # will be evaluated on cifar10 if no data given
         test_batch_size: int = 16,
         wandb_login: Optional[str] = None
@@ -34,7 +33,6 @@ def evaluate_classifier(
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         classifier.to(device)
-        encoder.to(device)
 
         criterion = nn.CrossEntropyLoss()
 
@@ -45,8 +43,7 @@ def evaluate_classifier(
             total_loss = 0
             for batch in test_loader:
                 img, labels = batch['img'].to(device), batch['label'].to(device)
-                hidden_representation = encoder(img)
-                outputs = classifier(hidden_representation)
+                outputs = classifier(img)
                 loss = criterion(outputs, labels)
                 total_loss += loss.item()
                 predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
@@ -80,10 +77,9 @@ def main():
     parser.add_argument('--wandb_login', help='wandb login to log loss and metrics', type=str, default=None)
     parser.add_argument('--batch_size', type=int, default=16)
     args = parser.parse_args()
-    autoencoder = AutoEncoder().load_model(args.autoencoder_path)
+    autoencoder = AutoEncoder.load_model(args.autoencoder_path)
     evaluate_classifier(
-        classifier=Classifier().load(args.classifier_path),
-        encoder=autoencoder.get_encoder(),
+        classifier=Classifier.load(args.classifier_path, encoder=autoencoder.get_encoder()),
         test_batch_size=args.batch_size,
         wandb_login=args.wandb_login
     )

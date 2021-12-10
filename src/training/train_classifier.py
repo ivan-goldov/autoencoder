@@ -17,7 +17,7 @@ from src.training.add_training_arguments import add_training_arguments
 def train_classifier(
         encoder: nn.Module,
         channels: int = 256,
-        epochs: int = 50,
+        epochs: int = 10,
         lr: float = 3e-4,
         train_batch_size: int = 64,
         test_batch_size: int = 16,
@@ -29,10 +29,8 @@ def train_classifier(
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    classifier = Classifier(in_channels=channels)
+    classifier = Classifier(encoder)
     classifier.to(device)
-
-    encoder.to(device)
 
     train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
 
@@ -56,12 +54,13 @@ def train_classifier(
                 optimizer.zero_grad()
 
                 img, labels = batch['img'].to(device), batch['label'].to(device)
-                hidden_representation = encoder(img)
-                outputs = classifier(hidden_representation)
+                outputs = classifier(img)
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
+
+            evaluate_classifier(classifier)
 
             epoch_loss /= len(train_loader)
             bar.update(1)
