@@ -23,7 +23,7 @@ def evaluate_autoencoder(
         if test_data is None:
             test_data = Cifar10Dataset('test')
 
-        test_loader = DataLoader(test_data, batch_size=128)
+        test_loader = DataLoader(test_data, batch_size=128, num_workers=16)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model.to(device)
 
@@ -32,7 +32,7 @@ def evaluate_autoencoder(
         # with tqdm(total=len(test_loader), desc='evaluation') as bar:
         total_loss = 0
         for batch in test_loader:
-            img = batch['img'].to(device)
+            img = batch[0].to(device)
             reconstructed = model(img)
             total_loss += criterion(reconstructed, img).item()
             # bar.update(1)

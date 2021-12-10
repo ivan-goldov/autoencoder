@@ -54,7 +54,7 @@ def train_autoencoder(
             for batch in train_loader:
                 optimizer.zero_grad()
 
-                img = batch['img'].to(device)
+                img = batch[0].to(device)
                 reconstructed = autoencoder(img)
                 loss = criterion(reconstructed, img)
 
