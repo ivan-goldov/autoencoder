@@ -19,7 +19,7 @@ class Classifier(nn.Module):
             # nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels // 4, kernel_size=3),
             # nn.ReLU(inplace=True),
             nn.Flatten(),
-            nn.Linear(1152, 128),
+            nn.Linear(400, 128),
             nn.ReLU(inplace=True),
             nn.Linear(128, n_classes),
         )
