@@ -6,7 +6,7 @@ from src.modules.residual_block import ResidualBlock
 
 
 class Encoder(nn.Module):
-    def __init__(self, in_channels: int = 1, num_hidden_units: int = 128):
+    def __init__(self, num_hidden_units: int = 128, in_channels: int = 1):
         super().__init__()
         self.model = Sequential(
             nn.Conv2d(
