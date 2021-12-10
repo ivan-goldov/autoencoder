@@ -21,26 +21,20 @@ class Cifar10Dataset(Dataset):
             )
         self.split = split
 
-    def __getitem__(self, index: int) -> Dict[str, Union[torch.Tensor, int]]:
+    def __getitem__(self, index: int) -> Dict[int, Union[torch.Tensor, int]]:
         """
         All images represented as 3072 vector where first 1024 integers are red, 1024 green, 1024 blue,
         so they are converted to torch.Tensor with shape (3, 32, 32)
         """
 
-        vector, label = self.data['data'][index], self.data['labels'][index]
+        vector, label = self.data[0][index], self.data[1][index]
         vector = vector.astype(np.float32) / 255
         tensor = torch.from_numpy(vector).resize_(3, 32, 32)
 
         if self.split == 'train':
-            transform = transforms.Compose(
-                [
-                    transforms.RandomHorizontalFlip(),
-                    transforms.RandomRotation(degrees=45),
-                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-                ]
-            )
+            transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
             tensor = transform(tensor)
-        return {'img': tensor, 'label': label}
+        return {0: tensor, 1: label}
 
     def __len__(self):
-        return len(self.data['data'])
+        return len(self.data[0])

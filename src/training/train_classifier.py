@@ -2,9 +2,11 @@ from argparse import ArgumentParser
 from typing import Optional
 
 import torch
+import torchvision
 import wandb
 from torch import nn
 from torch.utils.data import DataLoader
+from torchvision.transforms import transforms
 from tqdm import tqdm
 
 from src.data_processing.image_dataset import Cifar10Dataset
@@ -16,7 +18,6 @@ from src.training.add_training_arguments import add_training_arguments
 
 def train_classifier(
         encoder: nn.Module,
-        channels: int = 256,
         epochs: int = 10,
         lr: float = 3e-4,
         train_batch_size: int = 64,
@@ -26,13 +27,18 @@ def train_classifier(
         save_path: Optional[str] = None,
         seed: int = 0,
 ):
+    transform = transforms.Compose(
+        [transforms.ToTensor(),
+         transforms.Normalize(0.5, 0.5, )])
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     classifier = Classifier(encoder)
     classifier.to(device)
 
-    train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
+    # train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
+    train_loader = DataLoader(torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform),
+                              batch_size=512)
 
     if wandb_login:
         wandb.init(project='autoencoder', entity=wandb_login)
@@ -60,7 +66,9 @@ def train_classifier(
                 optimizer.step()
                 epoch_loss += loss.item()
 
-            evaluate_classifier(classifier)
+            evaluate_classifier(classifier,
+                                test_data=torchvision.datasets.MNIST(root='./data', train=True, download=True,
+                                                                     transform=transform))
 
             epoch_loss /= len(train_loader)
             bar.update(1)
@@ -71,21 +79,13 @@ def train_classifier(
             if save_path:
                 classifier.save(save_path)
 
-    if to_evaluate:
-        evaluate_classifier(
-            classifier=classifier,
-            encoder=encoder,
-            test_batch_size=test_batch_size,
-            wandb_login=wandb_login
-        )
-
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
+    # parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
     parser = add_training_arguments(parser)
     args = parser.parse_args()
-    autoencoder = AutoEncoder.load_model(args.autoencoder_model_path)
+    autoencoder, _, _ = AutoEncoder.load_checkpoint('/autoencoder_ckp')
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,
