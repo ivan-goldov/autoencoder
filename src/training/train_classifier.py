@@ -84,7 +84,7 @@ def train_classifier(
             if wandb_login:
                 wandb.log({'classifier_loss': epoch_loss})
                 for name, metric in metrics:
-                    wandb.log({'training ' + name: metric(targets, predictions)})
+                    wandb.log({'training_' + name: metric(targets, predictions)})
 
             if save_path:
                 classifier.save(save_path)

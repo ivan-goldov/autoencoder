@@ -53,7 +53,7 @@ def evaluate_classifier(
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
             for name, metrics in metrics:
-                wandb.log({'validation ' + name: metrics(targets, predictions)})
+                wandb.log({'validation_' + name: metrics(targets, predictions)})
 
 
 def main():
