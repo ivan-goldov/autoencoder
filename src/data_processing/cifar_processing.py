@@ -18,7 +18,7 @@ def get_train_data(folder_path: str) -> Dict[int, Any]:
     convenient_train_dict = {0: [], 1: []}
     for d in train_dicts:
         convenient_train_dict[0].extend(d[b'data'])
-        convenient_train_dict[0].extend(d[b'labels'])
+        convenient_train_dict[1].extend(d[b'labels'])
     return convenient_train_dict
 
 

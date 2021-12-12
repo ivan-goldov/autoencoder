@@ -2,7 +2,7 @@ from typing import Dict, Union
 
 import numpy as np
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms import transforms
 
 from src.data_processing.cifar_processing import get_train_data, get_test_data
@@ -40,6 +40,7 @@ class Cifar10Dataset(Dataset):
         so they are converted to torch.Tensor with shape (3, 32, 32)
         """
 
+        print(len(self.data[0]), len(self.data[1]))
         vector, label = self.data[0][index], self.data[1][index]
         vector = vector.astype(np.float32) / 255
         tensor = torch.from_numpy(vector).resize_(3, 32, 32)
@@ -56,3 +57,9 @@ class Cifar10Dataset(Dataset):
 
     def __len__(self):
         return len(self.data[0])
+
+
+if __name__ == '__main__':
+    a = Cifar10Dataset('test')
+    dl = DataLoader(a, batch_size=16)
+    # print(next(iter(dl)))
