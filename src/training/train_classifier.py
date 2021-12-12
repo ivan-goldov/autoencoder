@@ -1,9 +1,11 @@
 from argparse import ArgumentParser
+from functools import partial
 from typing import Optional
 
 import torch
 import torchvision
 import wandb
+from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
@@ -51,9 +53,16 @@ def train_classifier(
     optimizer = torch.optim.Adam(classifier.parameters(), lr=3e-5)
     criterion = nn.CrossEntropyLoss()
 
+    metrics = [
+        ('accuracy', accuracy_score),
+        ('f1', partial(f1_score, average='macro')),
+    ]
+
     with tqdm(total=epochs, desc='training') as bar:
         for epoch in range(epochs):
             epoch_loss = 0
+            predictions = []
+            targets = []
             for batch in train_loader:
                 optimizer.zero_grad()
 
@@ -63,8 +72,10 @@ def train_classifier(
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
+                predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
+                targets.extend(labels.detach().cpu().numpy())
 
-            evaluate_classifier(classifier, wandb_login=wandb_login)
+            evaluate_classifier(classifier, metrics=metrics, wandb_login=wandb_login)
 
             epoch_loss /= len(train_loader)
             bar.update(1)
@@ -72,6 +83,8 @@ def train_classifier(
 
             if wandb_login:
                 wandb.log({'classifier_loss': epoch_loss})
+                for name, metric in metrics:
+                    wandb.log({'training ' + name: metric(targets, predictions)})
 
             if save_path:
                 classifier.save(save_path)

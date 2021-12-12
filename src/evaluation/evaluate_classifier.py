@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from functools import partial
-from typing import Optional
+from typing import Optional, List, Tuple, Callable
 
 import torch
 import wandb
@@ -16,9 +16,10 @@ from src.modules.classifier import Classifier
 
 def evaluate_classifier(
         classifier: nn.Module,
+        metrics: List[Tuple[str, Callable]],
         test_data: Optional[Dataset] = None,
         test_batch_size: int = 64,
-        wandb_login: Optional[str] = None
+        wandb_login: Optional[str] = None,
 ):
     with torch.no_grad():
         if not test_data:
@@ -46,21 +47,13 @@ def evaluate_classifier(
 
             # bar.update(1)
 
-        scores = [
-            ('accuracy', accuracy_score),
-            ('f1', partial(f1_score, average='macro')),
-        ]
-
-        for name, score in scores:
-            print(f'{name}: {score(targets, predictions)}')
-
         # show_image(torchvision.utils.make_grid(img[:5]))
         # print(' '.join(test_data.label_to_str([predictions[j]]) for j in range(5)))
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
-            for name, score in scores:
-                wandb.log({name: score(targets, predictions)})
+            for name, metrics in metrics:
+                wandb.log({'validation ' + name: metrics(targets, predictions)})
 
 
 def main():
