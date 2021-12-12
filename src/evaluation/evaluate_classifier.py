@@ -48,8 +48,6 @@ def evaluate_classifier(
 
         scores = [
             ('accuracy', accuracy_score),
-            ('precision', partial(precision_score, average='macro')),
-            ('recall', partial(recall_score, average='macro')),
             ('f1', partial(f1_score, average='macro')),
         ]
 
@@ -62,7 +60,7 @@ def evaluate_classifier(
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
             for name, score in scores:
-                wandb.log(f'{name}: {score(targets, predictions)}')
+                wandb.log({name: score(targets, predictions)})
 
 
 def main():
