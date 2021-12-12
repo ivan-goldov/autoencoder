@@ -9,16 +9,20 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
 from tqdm import tqdm
 
+from src.data_processing.cifar10_dataset import Cifar10Dataset
 from src.evaluation.evaluate_autoencoder import evaluate_autoencoder
 from src.modules.autoencoder import AutoEncoder
 from src.training.add_training_arguments import add_training_arguments
 
 
 def train_autoencoder(
-        epochs: int = 50,
+        epochs: int = 200,
         lr: float = 3e-4,
-        train_batch_size: int = 64,
-        test_batch_size: int = 16,
+        train_batch_size: int = 256,
+        test_batch_size: int = 64,
+        num_workers: int = 16,
+        n_channels: int = 3,
+        hidden_size: int = 256,
         wandb_login: Optional[str] = None,
         save_path: Optional[str] = None,
         seed: int = 0,
@@ -26,14 +30,14 @@ def train_autoencoder(
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize(0.5, 0.5, )])
-    train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    train_loader = DataLoader(train_data, batch_size=256, num_workers=16)
-    autoencoder = AutoEncoder()
+    train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
+    # transform = transforms.Compose(
+    #     [transforms.ToTensor(),
+    #      transforms.Normalize(0.5, 0.5, )])
+    # train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    # test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    train_loader = DataLoader(train_data, batch_size=train_batch_size, num_workers=num_workers)
+    autoencoder = AutoEncoder(n_channels=n_channels, hidden_size=hidden_size)
     autoencoder.to(device)
 
     optimizer = torch.optim.Adam(autoencoder.parameters(), lr=lr)
@@ -75,7 +79,7 @@ def train_autoencoder(
             )
 
             if save_path:
-                autoencoder.save_checkpoint(save_path, epoch, optimizer.state_dict())
+                autoencoder.save_model(save_path)
 
             if wandb_login:
                 wandb.log({'autoencoder_loss': epoch_loss})
@@ -90,6 +94,9 @@ def main():
         lr=args.lr,
         train_batch_size=args.train_batch_size,
         test_batch_size=args.test_batch_size,
+        num_workers=args.num_workers,
+        n_channels=args.n_channels,
+        hidden_size=args.hidden_size,
         wandb_login=args.wandb_login,
         save_path=args.save_path,
         seed=args.seed

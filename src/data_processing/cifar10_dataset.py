@@ -9,6 +9,19 @@ from src.data_processing.cifar_processing import get_train_data, get_test_data
 
 
 class Cifar10Dataset(Dataset):
+    __label_to_str = {
+        0: 'airplane',
+        1: 'automobile',
+        2: 'bird',
+        3: 'cat',
+        4: 'deer',
+        5: 'dog',
+        6: 'frog',
+        7: 'horse',
+        8: 'ship',
+        9: 'truck'
+    }
+
     def __init__(self, split: str):
         super().__init__()
         if split == 'train':
@@ -31,10 +44,15 @@ class Cifar10Dataset(Dataset):
         vector = vector.astype(np.float32) / 255
         tensor = torch.from_numpy(vector).resize_(3, 32, 32)
 
-        if self.split == 'train':
-            transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-            tensor = transform(tensor)
+        # if self.split == 'train':
+        transform = transforms.Normalize((0.49139968, 0.48215827, 0.44653124),
+                                         (0.24703233, 0.24348505, 0.26158768))
+        tensor = transform(tensor)
         return {0: tensor, 1: label}
+
+    @classmethod
+    def label_to_str(cls, label: int) -> str:
+        return cls.__label_to_str[label]
 
     def __len__(self):
         return len(self.data[0])

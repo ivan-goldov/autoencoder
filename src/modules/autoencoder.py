@@ -9,10 +9,10 @@ from os.path import join, normpath
 
 
 class AutoEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, n_channels: int = 3, hidden_size: int = 256):
         super().__init__()
-        self.encoder = Encoder()
-        self.decoder = Decoder()
+        self.encoder = Encoder(in_channels=n_channels, num_hidden_units=hidden_size)
+        self.decoder = Decoder(out_channels=n_channels, num_hidden_units=hidden_size)
 
     def encode(self, x: Tensor) -> Tensor:
         return self.encoder(x)

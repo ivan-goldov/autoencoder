@@ -3,29 +3,24 @@ from functools import partial
 from typing import Optional
 
 import torch
-import torchvision
 import wandb
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from src.data_processing.image_dataset import Cifar10Dataset
-from src.data_processing.show_image import show_image
+from src.data_processing.cifar10_dataset import Cifar10Dataset
 from src.modules.autoencoder import AutoEncoder
 from src.modules.classifier import Classifier
 
 
 def evaluate_classifier(
         classifier: nn.Module,
-        test_data: Optional[Dataset] = None,  # will be evaluated on cifar10 if no data given
-        test_batch_size: int = 16,
+        test_data: Dataset = None,
+        test_batch_size: int = 32,
         wandb_login: Optional[str] = None
 ):
     with torch.no_grad():
-        classes = ('plane', 'car', 'bird', 'cat',
-                   'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-
         if not test_data:
             test_data = Cifar10Dataset('test')
 
@@ -39,30 +34,30 @@ def evaluate_classifier(
         predictions = []
         targets = []
 
-        with tqdm(total=len(test_loader), desc='evaluation') as bar:
-            total_loss = 0
-            for batch in test_loader:
-                img, labels = batch[0].to(device), batch[1].to(device)
-                outputs = classifier(img)
-                loss = criterion(outputs, labels)
-                total_loss += loss.item()
-                predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
-                targets.extend(labels.detach().cpu().numpy())
+        # with tqdm(total=len(test_loader), desc='evaluation') as bar:
+        total_loss = 0
+        for batch in test_loader:
+            img, labels = batch[0].to(device), batch[1].to(device)
+            outputs = classifier(img)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+            predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
+            targets.extend(labels.detach().cpu().numpy())
 
-                # bar.update(1)
+            # bar.update(1)
 
         scores = [
             ('accuracy', accuracy_score),
-            # ('precision', partial(precision_score, average='micro')),
-            # ('recall', partial(recall_score, average='micro')),
-            # ('f1', partial(f1_score, average='micro')),
+            ('precision', partial(precision_score, average='macro')),
+            ('recall', partial(recall_score, average='macro')),
+            ('f1', partial(f1_score, average='macro')),
         ]
 
         for name, score in scores:
             print(f'{name}: {score(targets, predictions)}')
 
-        show_image(torchvision.utils.make_grid(img[:5]))
-        print(' '.join(classes[predictions[j]] for j in range(5)))
+        # show_image(torchvision.utils.make_grid(img[:5]))
+        # print(' '.join(test_data.label_to_str([predictions[j]]) for j in range(5)))
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
@@ -80,6 +75,7 @@ def main():
     autoencoder = AutoEncoder.load_model(args.autoencoder_path)
     evaluate_classifier(
         classifier=Classifier.load(args.classifier_path, encoder=autoencoder.get_encoder()),
+        test_data=Cifar10Dataset('test'),
         test_batch_size=args.batch_size,
         wandb_login=args.wandb_login
     )

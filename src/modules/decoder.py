@@ -5,7 +5,7 @@ from src.modules.residual_block import ResidualBlock
 
 
 class Decoder(nn.Module):
-    def __init__(self, num_hidden_units: int = 128, out_channels: int = 1):
+    def __init__(self, out_channels: int = 3, num_hidden_units: int = 256):
         super().__init__()
         self.model = nn.Sequential(
             ResidualBlock(num_hidden_units, num_hidden_units),

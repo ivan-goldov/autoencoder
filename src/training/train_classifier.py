@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
 from tqdm import tqdm
 
-from src.data_processing.image_dataset import Cifar10Dataset
+from src.data_processing.cifar10_dataset import Cifar10Dataset
 from src.evaluation.evaluate_classifier import evaluate_classifier
 from src.modules.autoencoder import AutoEncoder
 from src.modules.classifier import Classifier
@@ -18,11 +18,11 @@ from src.training.add_training_arguments import add_training_arguments
 
 def train_classifier(
         encoder: nn.Module,
-        epochs: int = 10,
+        epochs: int = 100,
         lr: float = 3e-4,
-        train_batch_size: int = 64,
-        test_batch_size: int = 16,
-        to_evaluate: bool = True,
+        train_batch_size: int = 512,
+        test_batch_size: int = 64,
+        hidden_size: int = 256,
         wandb_login: Optional[str] = None,
         save_path: Optional[str] = None,
         seed: int = 0,
@@ -33,12 +33,13 @@ def train_classifier(
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    classifier = Classifier(encoder)
+    classifier = Classifier(encoder, in_channels=hidden_size)
     classifier.to(device)
 
-    # train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
-    train_loader = DataLoader(torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform),
-                              batch_size=512)
+    train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
+    # train_loader = DataLoader(
+    # torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform),
+    #                            batch_size=512)
 
     if wandb_login:
         wandb.init(project='autoencoder', entity=wandb_login)
@@ -93,7 +94,7 @@ def main():
         lr=args.lr,
         train_batch_size=args.train_batch_size,
         test_batch_size=args.test_batch_size,
-        to_evaluate=args.to_evaluate,
+        hidden_size=args.hidden_size,
         wandb_login=args.wandb_login,
         save_path=args.save_path,
         seed=args.seed

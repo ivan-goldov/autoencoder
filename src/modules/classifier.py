@@ -1,12 +1,11 @@
 from os.path import join, normpath
 
 import torch
-import torch.nn.functional as F
 from torch import nn, Tensor
 
 
 class Classifier(nn.Module):
-    def __init__(self, encoder: nn.Module, in_channels: int = 128, n_classes: int = 10):
+    def __init__(self, encoder: nn.Module, in_channels: int = 256, n_classes: int = 10):
         super().__init__()
         self.encoder = encoder
         for param in self.encoder.parameters():
@@ -14,14 +13,11 @@ class Classifier(nn.Module):
         self.model = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 8, kernel_size=3),
             nn.ReLU(inplace=True),
-            # nn.ReLU(inplace=True),
-            # nn.MaxPool2d(2),
-            # nn.Conv2d(in_channels=in_channels // 2, out_channels=in_channels // 4, kernel_size=3),
-            # nn.ReLU(inplace=True),
+            nn.MaxPool2d(2),
             nn.Flatten(),
-            nn.Linear(400, 128),
+            nn.Linear(288, 100),
             nn.ReLU(inplace=True),
-            nn.Linear(128, n_classes),
+            nn.Linear(100, n_classes),
         )
 
     def forward(self, x: Tensor) -> Tensor:

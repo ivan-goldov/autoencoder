@@ -8,7 +8,7 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
-from src.data_processing.image_dataset import Cifar10Dataset
+from src.data_processing.cifar10_dataset import Cifar10Dataset
 from src.data_processing.show_image import show_image
 from src.modules.autoencoder import AutoEncoder
 
