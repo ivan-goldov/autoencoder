@@ -95,8 +95,8 @@ def main():
     parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
     parser = add_training_arguments(parser)
     args = parser.parse_args()
-    # autoencoder = AutoEncoder.load_model(args.autoencoder_model_path)
-    autoencoder = AutoEncoder()
+    autoencoder = AutoEncoder.load_model(args.autoencoder_model_path)
+    # autoencoder = AutoEncoder()
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,
