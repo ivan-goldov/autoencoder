@@ -22,6 +22,7 @@ def train_classifier(
         lr: float = 3e-4,
         train_batch_size: int = 512,
         test_batch_size: int = 64,
+        num_workers: int = 16,
         hidden_size: int = 256,
         wandb_login: Optional[str] = None,
         save_path: Optional[str] = None,
@@ -33,7 +34,7 @@ def train_classifier(
     classifier = Classifier(encoder, in_channels=hidden_size)
     classifier.to(device)
 
-    train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
+    train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size, num_workers=num_workers)
 
     if wandb_login:
         wandb.init(project='autoencoder', entity=wandb_login)

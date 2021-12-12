@@ -44,7 +44,7 @@ def evaluate_classifier(
                 predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
                 targets.extend(labels.detach().cpu().numpy())
 
-            bar.update(1)
+                bar.update(1)
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
