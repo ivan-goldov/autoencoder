@@ -16,8 +16,8 @@ from src.modules.classifier import Classifier
 
 def evaluate_classifier(
         classifier: nn.Module,
-        test_data: Dataset = None,
-        test_batch_size: int = 32,
+        test_data: Optional[Dataset] = None,
+        test_batch_size: int = 64,
         wandb_login: Optional[str] = None
 ):
     with torch.no_grad():

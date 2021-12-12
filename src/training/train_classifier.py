@@ -27,9 +27,6 @@ def train_classifier(
         save_path: Optional[str] = None,
         seed: int = 0,
 ):
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-         transforms.Normalize(0.5, 0.5, )])
     torch.manual_seed(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -67,9 +64,7 @@ def train_classifier(
                 optimizer.step()
                 epoch_loss += loss.item()
 
-            evaluate_classifier(classifier,
-                                test_data=torchvision.datasets.MNIST(root='./data', train=True, download=True,
-                                                                     transform=transform))
+            evaluate_classifier(classifier)
 
             epoch_loss /= len(train_loader)
             bar.update(1)
