@@ -11,13 +11,11 @@ class Classifier(nn.Module):
         for param in self.encoder.parameters():
             param.requires_grad = False
         self.model = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 8, kernel_size=3),
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels // 4, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(2),
             nn.Flatten(),
-            nn.Linear(288, 100),
-            nn.ReLU(inplace=True),
-            nn.Linear(100, n_classes),
+            nn.Linear(576, n_classes)
         )
 
     def forward(self, x: Tensor) -> Tensor:

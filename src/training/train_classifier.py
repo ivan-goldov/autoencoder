@@ -3,12 +3,10 @@ from functools import partial
 from typing import Optional
 
 import torch
-import torchvision
 import wandb
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision.transforms import transforms
 from tqdm import tqdm
 
 from src.data_processing.cifar10_dataset import Cifar10Dataset
@@ -36,9 +34,6 @@ def train_classifier(
     classifier.to(device)
 
     train_loader = DataLoader(Cifar10Dataset('train'), batch_size=train_batch_size)
-    # train_loader = DataLoader(
-    # torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform),
-    #                            batch_size=512)
 
     if wandb_login:
         wandb.init(project='autoencoder', entity=wandb_login)
@@ -92,11 +87,15 @@ def train_classifier(
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('autoencoder_model_path', help='path for autoencoder model', type=str)
+    parser.add_argument('--autoencoder_model_path', help='path for autoencoder model', type=str)
     parser = add_training_arguments(parser)
     args = parser.parse_args()
-    autoencoder = AutoEncoder.load_model(args.autoencoder_model_path)
-    # autoencoder = AutoEncoder()
+    if args.autoencoder_model_path:
+        autoencoder = AutoEncoder.load_model(args.autoencoder_model_path)
+        print('Training with pre-trained encoder')
+    else:
+        autoencoder = AutoEncoder()
+        print('Training with random initialized encoder')
     encoder = autoencoder.get_encoder()
     train_classifier(
         encoder=encoder,

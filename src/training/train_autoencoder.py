@@ -2,11 +2,9 @@ from argparse import ArgumentParser
 from typing import Optional
 
 import torch.cuda
-import torchvision
 import wandb as wandb
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision.transforms import transforms
 from tqdm import tqdm
 
 from src.data_processing.cifar10_dataset import Cifar10Dataset
@@ -31,11 +29,6 @@ def train_autoencoder(
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     train_data, test_data = Cifar10Dataset('train'), Cifar10Dataset('test')
-    # transform = transforms.Compose(
-    #     [transforms.ToTensor(),
-    #      transforms.Normalize(0.5, 0.5, )])
-    # train_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
-    # test_data = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     train_loader = DataLoader(train_data, batch_size=train_batch_size, num_workers=num_workers)
     autoencoder = AutoEncoder(n_channels=n_channels, hidden_size=hidden_size)
     autoencoder.to(device)

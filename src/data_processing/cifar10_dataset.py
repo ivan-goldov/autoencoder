@@ -2,7 +2,7 @@ from typing import Dict, Union
 
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision.transforms import transforms
 
 from src.data_processing.cifar_processing import get_train_data, get_test_data
@@ -44,7 +44,6 @@ class Cifar10Dataset(Dataset):
         vector = vector.astype(np.float32) / 255
         tensor = torch.from_numpy(vector).resize_(3, 32, 32)
 
-        # if self.split == 'train':
         transform = transforms.Normalize((0.49139968, 0.48215827, 0.44653124),
                                          (0.24703233, 0.24348505, 0.26158768))
         tensor = transform(tensor)

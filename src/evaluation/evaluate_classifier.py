@@ -1,10 +1,9 @@
 from argparse import ArgumentParser
-from functools import partial
 from typing import Optional, List, Tuple, Callable
 
 import torch
 import wandb
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
@@ -35,20 +34,17 @@ def evaluate_classifier(
         predictions = []
         targets = []
 
-        # with tqdm(total=len(test_loader), desc='evaluation') as bar:
-        total_loss = 0
-        for batch in test_loader:
-            img, labels = batch[0].to(device), batch[1].to(device)
-            outputs = classifier(img)
-            loss = criterion(outputs, labels)
-            total_loss += loss.item()
-            predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
-            targets.extend(labels.detach().cpu().numpy())
+        with tqdm(total=len(test_loader), desc='evaluation') as bar:
+            total_loss = 0
+            for batch in test_loader:
+                img, labels = batch[0].to(device), batch[1].to(device)
+                outputs = classifier(img)
+                loss = criterion(outputs, labels)
+                total_loss += loss.item()
+                predictions.extend(torch.argmax(outputs, dim=1).detach().cpu().numpy())
+                targets.extend(labels.detach().cpu().numpy())
 
-            # bar.update(1)
-
-        # show_image(torchvision.utils.make_grid(img[:5]))
-        # print(' '.join(test_data.label_to_str([predictions[j]]) for j in range(5)))
+            bar.update(1)
 
         if wandb_login:
             wandb.log({'evaluate_classifier_loss': total_loss})
@@ -66,6 +62,7 @@ def main():
     autoencoder = AutoEncoder.load_model(args.autoencoder_path)
     evaluate_classifier(
         classifier=Classifier.load(args.classifier_path, encoder=autoencoder.get_encoder()),
+        metrics=[('accuracy', accuracy_score)],
         test_data=Cifar10Dataset('test'),
         test_batch_size=args.batch_size,
         wandb_login=args.wandb_login
